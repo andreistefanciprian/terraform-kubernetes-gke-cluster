@@ -56,7 +56,7 @@ Note: gcp_sa_key.json should be available in current dir
 
 Note: 
 * Before running terraform, provide GCP proj name in tf_bucket/terraform.tfvars and gke_cluster/terraform.tfvars files
-* After creating tf bucket, provide the created bucket name in the gke_cluster/backend.tf
+* After creating tf bucket, provide the created bucket name (TFSTATE_BUCKET=...) in the makefile
 
 ```
 ## Create terraform resources using makefile
