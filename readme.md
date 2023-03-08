@@ -6,8 +6,11 @@ Build a K8s cluster in Google Cloud with Terraform.
 ## Requirements
 
 * gcloud CLI (https://cloud.google.com/sdk/docs/install)
-* terraform (https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 * Gogle Cloud Console account and project (https://console.cloud.google.com/)
+* docker-compose (https://docs.docker.com/compose/install/other/)
+* make (https://formulae.brew.sh/formula/make)
+
+We will run terraform from a docker container, so no need to install it.
 
 ## Set up the necessary infrastructure on GCP for use with Terraform
 
