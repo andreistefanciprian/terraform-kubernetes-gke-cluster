@@ -67,7 +67,9 @@ This repo use terraform version 1.2.5
 
 Note: 
 * terraform SA Key (gcp_sa_key.json) should be available in current dir
-* Before running terraform, update TF_VAR_gcp_project and TF_VAR_gcp_region terraform variables in .env file
+* Before running terraform update .env file in root folder:
+    * update TF_VAR_gcp_project and TF_VAR_gcp_region to match your GCP details
+    * define terraform credentials GOOGLE_APPLICATION_CREDENTIALS="/var/tmp/code/gcp_sa_key.json"
 * After creating tf bucket, update bucket name var (TFSTATE_BUCKET=...) in the makefile
 
 #### Create GCP bucket for storing terraform state files
