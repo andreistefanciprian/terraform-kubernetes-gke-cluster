@@ -66,8 +66,8 @@ This repo use terraform version 1.2.5
 #### How to use terraform to create/destroy resources
 
 Note: 
-* terraform SA Key (gcp_sa_key.json) should be available in current dir
-* Before running terraform update .env file in root folder:
+* terraform SA Key (gcp_sa_key.json) should be available in current directory
+* Before running terraform update .env file in current directory:
     * update TF_VAR_gcp_project and TF_VAR_gcp_region to match your GCP details
     * define terraform credentials GOOGLE_APPLICATION_CREDENTIALS="/var/tmp/code/gcp_sa_key.json"
 * After creating tf bucket, update bucket name var (TFSTATE_BUCKET=...) in the makefile
