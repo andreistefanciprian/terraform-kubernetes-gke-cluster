@@ -39,3 +39,8 @@ variable "gke_num_nodes" {
   default     = 1
   description = "number of gke nodes"
 }
+
+variable "github_repo_owner" {
+  type    = string
+  default = "andreistefanciprian"
+}
