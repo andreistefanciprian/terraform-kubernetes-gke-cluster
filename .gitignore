@@ -1,4 +1,3 @@
-.env
 *.json
 *.yaml
 */.terraform
@@ -7,3 +6,6 @@
 */terraform.tfstate.backup
 */terraform.tfstate
 */*.tfplan
+.env
+.*
+!/.gitignore
