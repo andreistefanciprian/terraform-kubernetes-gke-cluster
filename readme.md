@@ -1,6 +1,6 @@
 # Description
 
-Build a K8s cluster in Google Cloud with Terraform.
+Build K8s cluster and Artifact Registry in Google Cloud with Terraform.
 
 
 ## Requirements
@@ -83,9 +83,7 @@ Note: use docker-compose for creating the tf_state bucket
 docker-compose run terraform -chdir=tf_bucket apply -auto-approve
 ```
 
-#### Create GKE cluster
-
-Note: We also create a docker container registry and an artifact registry
+#### Create terraform resources
 
 ```
 # create terraform resources
