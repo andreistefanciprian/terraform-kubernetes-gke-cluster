@@ -15,19 +15,6 @@ resource "google_artifact_registry_repository_iam_member" "image_registry_writer
   member     = "serviceAccount:${google_service_account.gha_helm.email}"
 }
 
-# Create Container Registry
-resource "google_container_registry" "my-images" {
-  project  = var.gcp_project
-  location = "ASIA"
-}
-
-# Grant GHA SA permission to write to registry
-resource "google_storage_bucket_iam_member" "writer" {
-  bucket = google_container_registry.my-images.id
-  role   = "roles/storage.legacyBucketWriter"
-  member = "serviceAccount:${google_service_account.gha_helm.email}"
-}
-
 #  Create dedicated Artifactory registry for helm images
 resource "google_artifact_registry_repository" "helm-charts" {
   location      = var.gcp_region
@@ -93,3 +80,19 @@ output "google_iam_workload_identity_pool_name" {
   description = "Workload Identity Pool Name"
   value       = google_iam_workload_identity_pool.go-demo-app.name
 }
+
+
+# Enable when using container registry for pushing images
+
+# # Create Container Registry
+# resource "google_container_registry" "my-images" {
+#   project  = var.gcp_project
+#   location = "ASIA"
+# }
+
+# # Grant GHA SA permission to write to registry
+# resource "google_storage_bucket_iam_member" "writer" {
+#   bucket = google_container_registry.my-images.id
+#   role   = "roles/storage.legacyBucketWriter"
+#   member = "serviceAccount:${google_service_account.gha_helm.email}"
+# }
