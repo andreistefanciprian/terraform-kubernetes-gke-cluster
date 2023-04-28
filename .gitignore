@@ -1,5 +1,6 @@
 *.json
 *.yaml
+!docker-compose.yaml
 */.terraform
 */.terraform.lock.hcl
 */.terraform
