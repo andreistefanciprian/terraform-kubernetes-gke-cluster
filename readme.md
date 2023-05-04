@@ -1,7 +1,7 @@
 # Description
 
-Build K8s cluster and Artifact Registry in Google Cloud with Terraform.
-
+* Build K8s cluster and Artifact Registry in Google Cloud with Terraform.
+* Golang demo app with github actions workflows for pushing helm chart and container image to Artifact Registry [here](https://github.com/andreistefanciprian/go-demo-app).
 
 ## Requirements
 
