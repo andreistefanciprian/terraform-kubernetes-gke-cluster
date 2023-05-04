@@ -1,8 +1,8 @@
-# # Create a dedicated Google Service Account which will push the Helm charts and Container Images to Artifact Registry
-# resource "google_service_account" "ghr" {
-#   account_id   = "github-runner"
-#   display_name = "Github Actions Service Account used to push artefacts in GAR"
-# }
+# Create a dedicated Google Service Account which will push the Helm charts and Container Images to Artifact Registry
+resource "google_service_account" "ghr" {
+  account_id   = "github-runner"
+  display_name = "Github Actions Service Account used to push artefacts in GAR"
+}
 
 # Create CMEK keyring and crypto key
 resource "google_kms_key_ring" "test" {
@@ -33,7 +33,7 @@ resource "google_project_service_identity" "gar_sa" {
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = google_kms_crypto_key.test.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member = "serviceAccount:${google_project_service_identity.gar_sa.email}"
+  member        = "serviceAccount:${google_project_service_identity.gar_sa.email}"
   depends_on = [
     google_project_service_identity.gar_sa
   ]
@@ -69,7 +69,7 @@ resource "google_artifact_registry_repository_iam_member" "cmek_image_registry_w
   location   = google_artifact_registry_repository.cmek-container-images.location
   repository = google_artifact_registry_repository.cmek-container-images.name
   role       = "roles/artifactregistry.writer"
-  member     = "serviceAccount:${google_service_account.gha_helm.email}"
+  member     = "serviceAccount:${google_service_account.ghr.email}"
 }
 
 # Grant GHA SA permission to write to helm registry
@@ -78,12 +78,50 @@ resource "google_artifact_registry_repository_iam_member" "cmek_helm_registry_wr
   location   = google_artifact_registry_repository.cmek-helm-charts.location
   repository = google_artifact_registry_repository.cmek-helm-charts.name
   role       = "roles/artifactregistry.writer"
-  member     = "serviceAccount:${google_service_account.gha_helm.email}"
+  member     = "serviceAccount:${google_service_account.ghr.email}"
 }
 
-# # Allow authentications from the Workload Identity Provider to impersonate the gha helm Service Account
-# resource "google_service_account_iam_member" "go-demo-app" {
-#   service_account_id = google_service_account.ghr.name
-#   role               = "roles/iam.serviceAccountTokenCreator"
-#   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/go-demo-app"
-# }
+# Workload Identity Federation configuration
+# Create a Workload Identity Pool
+resource "google_iam_workload_identity_pool" "go-demo-app" {
+  workload_identity_pool_id = "go-demo-app"
+  description               = "Identity pool for Github Actions"
+}
+
+# Create a Workload Identity Provider with GitHub actions
+resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.go-demo-app.workload_identity_pool_id
+  workload_identity_pool_provider_id = "go-demo-app-prvdr"
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub",
+    "attribute.actor"      = "assertion.actor",
+    "attribute.aud"        = "assertion.aud",
+    "attribute.repository" = "assertion.repository",
+  }
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
+
+# Allow authentications from the Workload Identity Provider to impersonate the gha Service Account
+resource "google_service_account_iam_member" "gha_impersonator" {
+  service_account_id = google_service_account.ghr.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/go-demo-app"
+}
+
+# Outputs
+output "google_iam_workload_identity_pool_provider_github_name" {
+  description = "Workload Identity Pool Provider ID"
+  value       = google_iam_workload_identity_pool_provider.go-demo-app.name
+}
+
+output "google_iam_workload_identity_pool_name" {
+  description = "Workload Identity Pool Name"
+  value       = google_iam_workload_identity_pool.go-demo-app.name
+}
+
+output "service_account_github_actions_email" {
+  description = "Service Account used by GitHub Actions"
+  value       = google_service_account.ghr.email
+}
