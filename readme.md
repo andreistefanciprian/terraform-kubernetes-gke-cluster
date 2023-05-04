@@ -35,7 +35,8 @@ servicemanagement.googleapis.com \
 iamcredentials.googleapis.com \
 compute.googleapis.com \
 container.googleapis.com \
-sts.googleapis.com
+sts.googleapis.com \
+cloudkms.googleapis.com
 
 # create terraform service account
 gcloud iam service-accounts create terraform \
