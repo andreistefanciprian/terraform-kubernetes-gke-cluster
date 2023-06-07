@@ -26,6 +26,8 @@ gcloud config set account $GCP_EMAIL
 gcloud config set compute/region $GCP_REGION
 gcloud config set compute/zone ${GCP_REGION}-a
 
+gcloud auth login
+
 # enable GCP APIs
 gcloud services enable --project $GCP_PROJECT \
 artifactregistry.googleapis.com \
@@ -36,7 +38,8 @@ iamcredentials.googleapis.com \
 compute.googleapis.com \
 container.googleapis.com \
 sts.googleapis.com \
-cloudkms.googleapis.com
+cloudkms.googleapis.com \
+mesh.googleapis.com
 
 # create terraform service account
 gcloud iam service-accounts create terraform \
@@ -87,13 +90,16 @@ docker-compose run terraform -chdir=tf_bucket apply -auto-approve
 #### Create terraform resources
 
 ```
-# create terraform resources
+# create K8s cluster (GKE)
 make verify_version
 make plan TF_TARGET=gke_cluster
 make deploy-auto-approve TF_TARGET=gke_cluster
 
 # configure kubectl profile
 gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
+
+# create artifact registry (GAR)
+make deploy-auto-approve TF_TARGET=artifact_registry
 ```
 
 #### Destroy terraform resources
@@ -104,4 +110,5 @@ docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
 
 # destroy terraform resources
 make destroy-auto-approve TF_TARGET=gke_cluster
+make destroy-auto-approve TF_TARGET=artifact_registry
 ```

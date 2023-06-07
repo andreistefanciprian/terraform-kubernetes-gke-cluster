@@ -16,6 +16,13 @@ resource "google_container_cluster" "primary" {
   enable_shielded_nodes       = true         # https://cloud.google.com/kubernetes-engine/docs/how-to/shielded-gke-nodes
   enable_intranode_visibility = true         # https://cloud.google.com/kubernetes-engine/docs/how-to/intranode-visibility
   networking_mode             = "VPC_NATIVE" # Required for private service networking to services
+
+  private_cluster_config {
+    enable_private_endpoint = false
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "172.16.0.0/28"
+  }
+
   # https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "" # Let GCP choose
@@ -51,9 +58,29 @@ resource "google_container_cluster" "primary" {
 
   addons_config {
     istio_config {
-      disabled = "false"
+      disabled = "true"
       # auth = "AUTH_MUTUAL_TLS"
     }
+
+    http_load_balancing {
+      disabled = false
+    }
+
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+    network_policy_config {
+      disabled = false
+    }
+
+    gce_persistent_disk_csi_driver_config {
+      enabled = true
+    }
+  }
+
+  network_policy {
+    enabled  = true
+    provider = "CALICO"
   }
 
   node_config {
