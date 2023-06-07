@@ -6,12 +6,12 @@ resource "google_service_account" "ghr" {
 
 # Create CMEK keyring and crypto key
 resource "google_kms_key_ring" "test" {
-  name     = "test-keyring"
+  name     = var.app_name
   location = var.gcp_region
 }
 
 resource "google_kms_crypto_key" "test" {
-  name            = "test-crypto-key"
+  name            = var.app_name
   key_ring        = google_kms_key_ring.test.id
   rotation_period = "100000s"
   purpose         = "ENCRYPT_DECRYPT"
@@ -84,14 +84,14 @@ resource "google_artifact_registry_repository_iam_member" "cmek_helm_registry_wr
 # Workload Identity Federation configuration
 # Create a Workload Identity Pool
 resource "google_iam_workload_identity_pool" "go-demo-app" {
-  workload_identity_pool_id = "go-demo-app"
+  workload_identity_pool_id = var.app_name
   description               = "Identity pool for Github Actions"
 }
 
 # Create a Workload Identity Provider with GitHub actions
 resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.go-demo-app.workload_identity_pool_id
-  workload_identity_pool_provider_id = "go-demo-app-prvdr"
+  workload_identity_pool_provider_id = var.app_name
   attribute_mapping = {
     "google.subject"       = "assertion.sub",
     "attribute.actor"      = "assertion.actor",
@@ -107,7 +107,7 @@ resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
 resource "google_service_account_iam_member" "gha_impersonator" {
   service_account_id = google_service_account.ghr.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/go-demo-app"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/${var.app_name}"
 }
 
 # Outputs

@@ -2,8 +2,8 @@ TF_TARGET=
 TF_PLAN_FILE=$(TF_TARGET)-tf.tfplan
 TF_EXEC=docker-compose run terraform
 TF_EXTRA_OPS=
-TFSTATE_BUCKET=terraform-state-demo-12959
-TFSTATE_DIR=tfstate/gke
+TFSTATE_BUCKET=terraform-state-demo-74341
+TFSTATE_DIR=tfstate/$(TF_TARGET)
 
 
 all: plan
