@@ -20,7 +20,7 @@ resource "google_container_cluster" "primary" {
   private_cluster_config {
     enable_private_endpoint = false
     enable_private_nodes    = true
-    master_ipv4_cidr_block  = "172.16.0.0/28"
+    master_ipv4_cidr_block  = var.gke_master_cidr
   }
 
   # https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips
@@ -35,6 +35,7 @@ resource "google_container_cluster" "primary" {
     }
   }
 
+  # recommended way to safely access Google Cloud services from GKE applications.
   workload_identity_config {
     workload_pool = "${var.gcp_project}.svc.id.goog" # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
   }
@@ -83,6 +84,11 @@ resource "google_container_cluster" "primary" {
     provider = "CALICO"
   }
 
+  resource_labels = {
+    env     = var.gcp_project
+    mesh_id = "proj-${data.google_project.project.number}"
+  }
+
   node_config {
     machine_type = var.node_type
     preemptible  = true # Don't want nodes failing during calls particularly
@@ -93,6 +99,7 @@ resource "google_container_cluster" "primary" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+
     labels = {
       env = var.gcp_project
     }

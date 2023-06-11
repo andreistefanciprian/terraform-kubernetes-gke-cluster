@@ -112,3 +112,19 @@ docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
 make destroy-auto-approve TF_TARGET=gke_cluster
 make destroy-auto-approve TF_TARGET=artifact_registry
 ```
+
+#### Debug
+
+```
+# ssh into gke nodes
+gcloud compute instances list
+gcloud compute ssh <instanceName> --zone ${GCP_REGION}-a --tunnel-through-iap
+
+# test internet connectivity from GKE node
+gcloud compute routers create nat-router \
+    --network ${GCP_PROJECT}-vpc \
+    --region $GCP_REGION
+
+sudo nsenter --target `pgrep '^kube-dns$'` --net /bin/bash
+curl -I example.com
+```

@@ -39,3 +39,9 @@ variable "gke_num_nodes" {
   default     = 1
   description = "number of gke nodes"
 }
+
+variable "gke_master_cidr" {
+  type        = string
+  description = "Private IP subnet for GKE control plane"
+  default     = "172.16.0.0/28"
+}
