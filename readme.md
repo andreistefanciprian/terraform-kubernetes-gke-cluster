@@ -1,10 +1,8 @@
-This repository contains Terraform scripts that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP). The primary components include:
-
-
-
 # Google Kubernetes Engine (GKE) Cluster with Terraform
 
-This repository contains Terraform scripts that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP). The primary components include:
+This repository contains Terraform scripts that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP).
+
+The primary components include:
 * Private GKE Cluster with Public Endpoint: A Kubernetes cluster that's private with a publically accessible endpoint.
 * Artifact Registry: A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
 * Firewall Rules: Network rules that enable specific traffic patterns, including internet access from private nodes, Istio auto-injection, and SSH connectivity for debugging.
