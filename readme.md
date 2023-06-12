@@ -1,34 +1,46 @@
-# Description
+This repository contains Terraform scripts that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP). The primary components include:
 
-* Build K8s cluster and Artifact Registry in Google Cloud with Terraform.
-* Golang demo app with github actions workflows for pushing helm chart and container image to Artifact Registry [here](https://github.com/andreistefanciprian/go-demo-app).
 
-## Requirements
 
-* gcloud CLI (https://cloud.google.com/sdk/docs/install)
-* Gogle Cloud Console account and project (https://console.cloud.google.com/)
-* docker-compose (https://docs.docker.com/compose/install/other/)
-* make (https://formulae.brew.sh/formula/make)
+# Google Kubernetes Engine (GKE) Cluster with Terraform
 
-We will run terraform from a docker container, so no need to install it.
+This repository contains Terraform scripts that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP). The primary components include:
+* Private GKE Cluster with Public Endpoint: A Kubernetes cluster that's private with a publically accessible endpoint.
+* Artifact Registry: A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
+* Firewall Rules: Network rules that enable specific traffic patterns, including internet access from private nodes, Istio auto-injection, and SSH connectivity for debugging.
 
-## Set up the necessary infrastructure on GCP for use with Terraform
+Note: The firewall rules to enable internet access from private nodes and SSH connectivity are primarily for testing and debugging. Avoid enabling these rules in a production environment.
+
+## Prerequisites
+
+Before using the scripts in this repository, make sure you have the following tools installed:
+
+* [gcloud CLI](https://cloud.google.com/sdk/docs/install): Used to interact with Google Cloud resources.
+* [Google Cloud Console Account](https://console.cloud.google.com/): Access to a GCP account and project where the resources will be provisioned.
+* [Docker Compose](https://docs.docker.com/compose/install/other/): Terraform will run in a container.
+* [Make](https://formulae.brew.sh/formula/make): A build automation tool used to manage the terraform workflow.
+
+Since Terraform runs inside a Docker container, you don't need to install it on your machine.
+
+## Initial GCP Setup for Terraform
 
 ```
-# define vars
+# Set your GCP project details
 GCP_PROJECT=<yourGcpProjectNameGoesHere>
 GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
 GCP_REGION=<yourGcpRegionGoesHere>
 
-# setup gcp demo account 
+# Initialize and authenticate gcloud CLI
+# (follow the prompt to authenticate in your browser)
+gcloud auth login $GCP_EMAIL
+
+# Set gcloud to use your project and region
 gcloud config set project $GCP_PROJECT
 gcloud config set account $GCP_EMAIL
 gcloud config set compute/region $GCP_REGION
 gcloud config set compute/zone ${GCP_REGION}-a
 
-gcloud auth login
-
-# enable GCP APIs
+# Enable necessary GCP APIs
 gcloud services enable --project $GCP_PROJECT \
 artifactregistry.googleapis.com \
 cloudresourcemanager.googleapis.com \
@@ -41,15 +53,15 @@ sts.googleapis.com \
 cloudkms.googleapis.com \
 mesh.googleapis.com
 
-# create terraform service account
+# Create and set up Terraform service account
 gcloud iam service-accounts create terraform \
 --description="Used by Terraform" \
 --display-name="Terraform"
 
-# verify service account was created
+# Verify service account was created
 gcloud iam service-accounts list
 
-# bind project owner role to terraform sa
+# Grant the necessary roles to the service account
 gcloud projects add-iam-policy-binding $GCP_PROJECT \
 --member="serviceAccount:terraform@${GCP_PROJECT}.iam.gserviceaccount.com" \
 --role="roles/container.admin" \
@@ -58,26 +70,23 @@ gcloud projects add-iam-policy-binding $GCP_PROJECT \
 --role="roles/storage.legacyBucketWriter" \
 --role="roles/owner"
 
-# describe service account
+# Describe service account
 gcloud iam service-accounts describe terraform@${GCP_PROJECT}.iam.gserviceaccount.com
 
-# create Terraform SA key
+# Generate and download a service account key
 gcloud iam service-accounts keys create gcp_sa_key.json \
 --iam-account=terraform@${GCP_PROJECT}.iam.gserviceaccount.com
 ```
 
-## Terraform
+## Using Terraform
 
-This repo use terraform version 1.2.5
+This repository uses Terraform version 1.2.5.
 
 #### How to use terraform to create/destroy resources
 
-Note: 
-* terraform SA Key (gcp_sa_key.json) should be available in current directory
-* Before running terraform update .env file in current directory:
-    * update TF_VAR_gcp_project and TF_VAR_gcp_region to match your GCP details
-    * define terraform credentials GOOGLE_APPLICATION_CREDENTIALS="/var/tmp/code/gcp_sa_key.json"
-* After creating tf bucket, update bucket name var (TFSTATE_BUCKET=...) in the makefile
+Before running Terraform, update the .env file in your directory with your GCP project details and the location of your service account key.
+
+Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the Makefile.
 
 #### Create GCP bucket for storing terraform state files
 
@@ -87,7 +96,7 @@ Note: use docker-compose for creating the tf_state bucket
 docker-compose run terraform -chdir=tf_bucket apply -auto-approve
 ```
 
-#### Create terraform resources
+#### Create terraform resources (GKE cluster and GAR)
 
 ```
 # create K8s cluster (GKE)
@@ -105,12 +114,12 @@ make deploy-auto-approve TF_TARGET=artifact_registry
 #### Destroy terraform resources
 
 ```
-# destroy terraform resources
-docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
-
-# destroy terraform resources
+# destroy terraform resources (GKE and GAR)
 make destroy-auto-approve TF_TARGET=gke_cluster
 make destroy-auto-approve TF_TARGET=artifact_registry
+
+# destroy terraform resources
+docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
 ```
 
 #### Debug
