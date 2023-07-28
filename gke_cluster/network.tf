@@ -23,7 +23,9 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
 
-  target_tags = ["gke-node"]
+  target_tags   = ["gke-node"]
+  source_ranges = ["0.0.0.0/0"]
+  depends_on    = [google_compute_network.vpc]
 }
 
 # Allow istio pilot to inject sidecars
@@ -40,6 +42,7 @@ resource "google_compute_firewall" "allow_istio_auto_inject" {
   source_ranges = [var.gke_master_cidr]
 
   target_tags = ["gke-node"]
+  depends_on  = [google_compute_network.vpc]
 }
 
 # Allow internet connectivity from inside the cluster so we can pull images from public registries
@@ -65,4 +68,5 @@ resource "google_compute_router_nat" "nat" {
     enable = true
     filter = "ERRORS_ONLY"
   }
+  depends_on = [google_compute_router.router]
 }
