@@ -84,9 +84,7 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 This repository uses Terraform version 1.2.5:
 
-    ```
     make verify_version
-    ```
 
 Before using terraform to build resources in a new GCP project, make sure you clean pre-existing state, lock and cache files from previous GCP projects:
 
