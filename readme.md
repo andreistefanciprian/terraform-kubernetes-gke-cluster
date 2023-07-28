@@ -84,14 +84,11 @@ This repository uses Terraform version 1.2.5:
 
     make verify_version
 
-Before using terraform to build resources in a new GCP project, make sure you clean pre-existing state, lock and cache files from previous GCP projects:
+Update the .env file in your directory with your GCP project details and the location of your service account key. 
 
-    make clean TF_TARGET=tf_bucket
-    make clean TF_TARGET=gke_cluster
+#### Build GCP resources
 
-Also update the .env file in your directory with your GCP project details and the location of your service account key. 
-
-#### Create GCP bucket for storing terraform state files
+1. Create GCP bucket for storing terraform state files
 
     # create terraform bucket for storing tf state
     docker-compose run terraform -chdir=tf_bucket init
@@ -99,7 +96,7 @@ Also update the .env file in your directory with your GCP project details and th
 
 Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the Makefile.
 
-#### Create terraform resources (GKE cluster and GAR)
+2.  Create GKE cluster
 
     # create K8s cluster (GKE)
     make plan TF_TARGET=gke_cluster
@@ -108,7 +105,9 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     # configure kubectl profile
     gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
 
-    # create artifact registry (GAR)
+3. Create Google Artifact Registry (GAR)
+
+    # create GAR
     make deploy-auto-approve TF_TARGET=artifact_registry
 
 #### Destroy terraform resources
@@ -119,6 +118,11 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
+
+    # clean tf related files (local state, lock, cache)
+    make clean TF_TARGET=tf_bucket
+    make clean TF_TARGET=gke_cluster
+    make clean TF_TARGET=artifact_registry
 
 #### Debug
 
