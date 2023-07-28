@@ -22,7 +22,6 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Initial GCP Setup for Terraform
 
-    ```
     # Set your GCP project details
     GCP_PROJECT=<yourGcpProjectNameGoesHere>
     GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
@@ -78,7 +77,6 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
     # Generate and download a service account key
     gcloud iam service-accounts keys create gcp_sa_key.json \
     --iam-account=terraform@${GCP_PROJECT}.iam.gserviceaccount.com
-    ```
 
 ## Using Terraform
 
@@ -88,26 +86,21 @@ This repository uses Terraform version 1.2.5:
 
 Before using terraform to build resources in a new GCP project, make sure you clean pre-existing state, lock and cache files from previous GCP projects:
 
-    ```
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
-    ```
 
 Also update the .env file in your directory with your GCP project details and the location of your service account key. 
 
 #### Create GCP bucket for storing terraform state files
 
-    ```
     # create terraform bucket for storing tf state
     docker-compose run terraform -chdir=tf_bucket init
     docker-compose run terraform -chdir=tf_bucket apply -auto-approve
-    ```
 
 Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the Makefile.
 
 #### Create terraform resources (GKE cluster and GAR)
 
-    ```
     # create K8s cluster (GKE)
     make plan TF_TARGET=gke_cluster
     make deploy-auto-approve TF_TARGET=gke_cluster
@@ -117,22 +110,18 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 
     # create artifact registry (GAR)
     make deploy-auto-approve TF_TARGET=artifact_registry
-    ```
 
 #### Destroy terraform resources
 
-    ```
     # destroy terraform resources (GKE and GAR)
     make destroy-auto-approve TF_TARGET=gke_cluster
     make destroy-auto-approve TF_TARGET=artifact_registry
 
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
-    ```
 
 #### Debug
 
-    ```
     # ssh into gke nodes
     gcloud compute instances list
     gcloud compute ssh <instanceName> --zone ${GCP_REGION}-a --tunnel-through-iap
@@ -144,4 +133,3 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 
     sudo nsenter --target `pgrep '^kube-dns$'` --net /bin/bash
     curl -I example.com
-    ```
