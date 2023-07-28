@@ -83,13 +83,14 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 ## Using Terraform
 
 This repository uses Terraform version 1.2.5:
+
     ```
     make verify_version
     ```
 
 Before using terraform to build resources in a new GCP project, make sure you clean pre-existing state, lock and cache files from previous GCP projects:
+
     ```
-    make verify_version
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
     ```
@@ -98,9 +99,8 @@ Also update the .env file in your directory with your GCP project details and th
 
 #### Create GCP bucket for storing terraform state files
 
-Note: use docker-compose for creating the tf_state bucket
     ```
-    # create terraform resource
+    # create terraform bucket for storing tf state
     docker-compose run terraform -chdir=tf_bucket init
     docker-compose run terraform -chdir=tf_bucket apply -auto-approve
     ```
