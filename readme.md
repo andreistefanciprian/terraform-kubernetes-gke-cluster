@@ -89,27 +89,29 @@ Update the .env file in your directory with your GCP project details and the loc
 #### Build GCP resources
 
 1. Create GCP bucket for storing terraform state files
-
+    ```
     # create terraform bucket for storing tf state
     docker-compose run terraform -chdir=tf_bucket init
     docker-compose run terraform -chdir=tf_bucket apply -auto-approve
-
+    ```
 Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the Makefile.
 
 2.  Create GKE cluster
-
+    ```
     # create K8s cluster (GKE)
     make plan TF_TARGET=gke_cluster
     make deploy-auto-approve TF_TARGET=gke_cluster
 
     # configure kubectl profile
     gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
+    ```
 
 3. Create Google Artifact Registry (GAR)
-
+    ```
     # create GAR
     make deploy-auto-approve TF_TARGET=artifact_registry
-
+    ```
+    
 #### Destroy terraform resources
 
     # destroy terraform resources (GKE and GAR)
