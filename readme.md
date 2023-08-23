@@ -8,7 +8,7 @@ The primary components include:
     * A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
     * Authentication to GAR from the Github Actions Runner is done via [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
 * Firewall Rules: Network rules that enable specific traffic patterns, including internet access from private nodes, Istio auto-injection, and SSH connectivity for debugging.
-* [GKE Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled and used by a Kubernetes workload to impersonate an IAM Service Account and access secrets in Google Secrets Manager
+* [GKE Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled and used by a Kubernetes [workload](https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/tree/main/examples) to impersonate an IAM Service Account and access secrets in Google Secrets Manager
 
 Note: The firewall rules to enable internet access from private nodes and SSH connectivity are primarily for testing and debugging. Avoid enabling these rules in a production environment.
 

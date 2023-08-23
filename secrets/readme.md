@@ -11,6 +11,8 @@ The provided Terraform code accomplishes the following tasks:
     - This service account is designed for accessing secrets stored in Secret Manager.
     - The service account can also be impersonated by a Kubernetes Service Account of a specific workload.
 
+Here is an [example](https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/tree/main/examples) of a GKE workload that can impersonate the Google SA and mount the secret inside the pod.
+
 ### How to Use
 
     ```
