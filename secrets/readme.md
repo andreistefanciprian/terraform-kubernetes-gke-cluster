@@ -8,8 +8,8 @@ The provided Terraform code accomplishes the following tasks:
 1. **Enables Secrets Manager API**
 2. **Creates Secret**
 3. **Creates Google Service Account (SA)**
-4. **Grants Goole SA Secret Access Permissions**
-5. **Grants a Kubernetes SA Access to impersonate Google SA**
+    - This service account is designed for accessing secrets stored in Secret Manager.
+    - The service account can also be impersonated by a Kubernetes Service Account of a specific workload.
 
 ### How to Use
 
