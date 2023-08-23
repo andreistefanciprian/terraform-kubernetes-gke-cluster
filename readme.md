@@ -3,9 +3,12 @@
 This repository contains Terraform code that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP).
 
 The primary components include:
-* Private GKE Cluster with Public Endpoint: A Kubernetes cluster that's private with a publically accessible endpoint.
-* Artifact Registry: A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
+* Private GKE Cluster with Public Endpoint and Workload Identity enabled.
+* Google Artifact Registry (GAR): 
+    * A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
+    * Authentication to GAR from the Github Actions Runner is done via [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
 * Firewall Rules: Network rules that enable specific traffic patterns, including internet access from private nodes, Istio auto-injection, and SSH connectivity for debugging.
+* [GKE Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled and used by a Kubernetes workload to impersonate an IAM Service Account and access secrets in Google Secrets Manager
 
 Note: The firewall rules to enable internet access from private nodes and SSH connectivity are primarily for testing and debugging. Avoid enabling these rules in a production environment.
 
@@ -104,19 +107,27 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 
     # configure kubectl profile
     gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
+    kubectl cluster-info
     ```
 
-3. Create Google Artifact Registry (GAR)
+3. Create Google Artifact Registry (GAR) and configure external auth via Workload Identity Federation
     ```
     # create GAR
     make deploy-auto-approve TF_TARGET=artifact_registry
     ```
     
+4. Create secret in Google Secrets and allow GKE workload SA default/mypod to impersonate IAM SA and access the secret
+    ```
+    # create secrets
+    make deploy-auto-approve TF_TARGET=secrets
+    ```
+
 #### Destroy terraform resources
 
     # destroy terraform resources (GKE and GAR)
     make destroy-auto-approve TF_TARGET=gke_cluster
     make destroy-auto-approve TF_TARGET=artifact_registry
+    make destroy-auto-approve TF_TARGET=secrets
 
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
@@ -125,6 +136,7 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
     make clean TF_TARGET=artifact_registry
+    make clean TF_TARGET=secrets
 
 #### Debug
 
