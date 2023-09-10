@@ -1,5 +1,10 @@
 # Used by go-demo-app flux ImageRepository
 
+# Enable IAM API
+resource "google_project_service" "iam" {
+  service = "iam.googleapis.com"
+}
+
 # Service account to generate short lived token for flux ImageRepository authentication to GAR
 resource "google_service_account" "flux" {
   account_id   = "flux-gar-authenticator"
