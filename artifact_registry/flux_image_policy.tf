@@ -1,3 +1,4 @@
+# https://fluxcd.io/flux/guides/cron-job-image-auth/#gcp-container-registry
 # Used by go-demo-app flux ImageRepository
 
 # Enable IAM API
