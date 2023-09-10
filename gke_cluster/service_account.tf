@@ -9,7 +9,8 @@ locals {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/monitoring.viewer",
-    "roles/stackdriver.resourceMetadata.writer"
+    "roles/stackdriver.resourceMetadata.writer",
+    "roles/artifactregistry.reader"
   ]
 }
 
