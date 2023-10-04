@@ -40,16 +40,10 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
     # Enable necessary GCP APIs
     gcloud services enable --project $GCP_PROJECT \
-    artifactregistry.googleapis.com \
     cloudresourcemanager.googleapis.com \
     servicenetworking.googleapis.com \
     servicemanagement.googleapis.com \
-    iamcredentials.googleapis.com \
-    compute.googleapis.com \
-    container.googleapis.com \
-    sts.googleapis.com \
-    cloudkms.googleapis.com \
-    mesh.googleapis.com
+    iamcredentials.googleapis.com
 
     gcloud config set compute/region $GCP_REGION
     gcloud config set compute/zone ${GCP_REGION}-a

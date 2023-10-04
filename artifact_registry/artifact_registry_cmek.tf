@@ -1,3 +1,29 @@
+# Enable Google Services API
+resource "google_project_service" "artifactregistry" {
+  service = "artifactregistry.googleapis.com"
+}
+
+resource "google_project_service" "cloudkms" {
+  service = "cloudkms.googleapis.com"
+}
+
+resource "google_project_service" "container" {
+  service = "container.googleapis.com"
+}
+
+resource "google_project_service" "compute" {
+  service = "compute.googleapis.com"
+}
+
+# do we need mesh? might be used by ASM
+resource "google_project_service" "mesh" {
+  service = "mesh.googleapis.com"
+}
+
+resource "google_project_service" "sts" {
+  service = "sts.googleapis.com"
+}
+
 # Create a dedicated Google Service Account which will push the Helm charts and Container Images to Artifact Registry
 resource "google_service_account" "ghr" {
   account_id   = "github-runner"
