@@ -17,7 +17,7 @@ variable "maintenance_window" {
 
 variable "node_type" {
   type    = string
-  default = "n1-standard-1"
+  default = "n1-standard-2"
 }
 
 variable "node_disk_type" {
