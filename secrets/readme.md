@@ -1,6 +1,6 @@
 ## Description
 
-This Terraform code facilitates secret management and secure access controls in Google Cloud Platform (GCP) via Google Secret Manager. It enables smooth integration with Kubernetes workloads, utilizing [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
+This Terraform code facilitates secret and certificate management in Google Cloud Platform (GCP) via Google Secret Manager and Google Certificate Authority Service (CAS). It enables smooth integration with Kubernetes workloads, utilizing [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
 
 ### secrets.tf Code Overview
 
@@ -15,7 +15,7 @@ Here is an [example](https://github.com/GoogleCloudPlatform/secrets-store-csi-dr
 
 ### cas.tf Code Overview
 
-Provides the Google Certificate Authority Service (CAS) infrastructure for [cert-manager GoogleCASClusterIssuer](https://github.com/andreistefanciprian/flux-demo/tree/main/infra/cert-manager):
+Builds the CAS infrastructure for [cert-manager GoogleCASClusterIssuer](https://github.com/andreistefanciprian/flux-demo/tree/main/infra/cert-manager):
 Cert-manager GoogleCASClusterIssuer requests and manages certificates for kubernetes workloads.
 
 Here is an [example](https://github.com/andreistefanciprian/flux-demo/blob/main/clusters/home/demo-cert.yaml) of a certificate issued in K8s by the GoogleCASClusterIssuer.
