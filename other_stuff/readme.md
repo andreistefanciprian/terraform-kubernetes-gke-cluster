@@ -20,12 +20,21 @@ Cert-manager GoogleCASClusterIssuer requests and manages certificates for kubern
 
 Here is an [example](https://github.com/andreistefanciprian/flux-demo/blob/main/clusters/home/demo-cert.yaml) of a certificate issued in K8s by the GoogleCASClusterIssuer.
 
+
+### artifact_registry_cmek.tf Code Overview
+
+This Terraform code automates the creation of a dedicated Google Service Account for use with GitHub Actions. The service account is configured to push Helm charts and container images to Google Artifact Registry. Additionally, the code sets up Workload Identity Federation, enabling secure authentication and access for GitHub Actions.
+
+Github Actions workflow used for pushing charts and images [here](https://github.com/andreistefanciprian/go-demo-app/blob/main/.github/workflows/test_and_push_image.yaml#L71-L74).
+
+### flux_image_policy.tf Code Overview
+
 ### How to Use
 
     ```
     # Build
-    make deploy-auto-approve TF_TARGET=secrets
+    make deploy-auto-approve TF_TARGET=other_stuff
 
     # Destroy
-    make destroy-auto-approve TF_TARGET=secrets
+    make destroy-auto-approve TF_TARGET=other_stuff
     ```

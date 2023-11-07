@@ -1,27 +1,33 @@
 # Enable Google Services API
 resource "google_project_service" "artifactregistry" {
-  service = "artifactregistry.googleapis.com"
+  service                    = "artifactregistry.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "cloudkms" {
-  service = "cloudkms.googleapis.com"
+  service                    = "cloudkms.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "container" {
-  service = "container.googleapis.com"
+  service                    = "container.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "compute" {
-  service = "compute.googleapis.com"
+  service                    = "compute.googleapis.com"
+  disable_dependent_services = true
 }
 
 # do we need mesh? might be used by ASM
 resource "google_project_service" "mesh" {
-  service = "mesh.googleapis.com"
+  service                    = "mesh.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "sts" {
-  service = "sts.googleapis.com"
+  service                    = "sts.googleapis.com"
+  disable_dependent_services = true
 }
 
 # Create a dedicated Google Service Account which will push the Helm charts and Container Images to Artifact Registry
@@ -34,6 +40,7 @@ resource "google_service_account" "ghr" {
 resource "google_kms_key_ring" "test" {
   name     = var.app_name
   location = var.gcp_region
+  depends_on = [ google_project_service.cloudkms ]
 }
 
 resource "google_kms_crypto_key" "test" {
@@ -45,7 +52,7 @@ resource "google_kms_crypto_key" "test" {
     algorithm = "GOOGLE_SYMMETRIC_ENCRYPTION"
   }
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 

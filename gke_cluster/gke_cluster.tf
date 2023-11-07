@@ -4,6 +4,16 @@
 #   display_name = var.service_account_name_cluster
 # }
 
+resource "google_project_service" "container" {
+  service                    = "container.googleapis.com"
+  disable_dependent_services = true
+}
+
+resource "google_project_service" "compute" {
+  service                    = "compute.googleapis.com"
+  disable_dependent_services = true
+}
+
 resource "google_container_cluster" "primary" {
   provider           = google-beta
   name               = "${var.gcp_project}-gke"

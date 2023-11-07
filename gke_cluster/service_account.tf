@@ -1,7 +1,13 @@
+resource "google_project_service" "iam" {
+  service                    = "iam.googleapis.com"
+  disable_dependent_services = true
+}
+
 resource "google_service_account" "cluster" {
   account_id   = var.service_account_name_cluster
   display_name = var.service_account_name_cluster
   project      = var.gcp_project
+  depends_on = [google_project_service.iam]
 }
 
 locals {

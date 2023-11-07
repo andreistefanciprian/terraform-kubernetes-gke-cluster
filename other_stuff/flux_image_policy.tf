@@ -3,7 +3,8 @@
 
 # Enable IAM API
 resource "google_project_service" "iam" {
-  service = "iam.googleapis.com"
+  service                    = "iam.googleapis.com"
+  disable_dependent_services = true
 }
 
 # Service account to generate short lived token for flux ImageRepository authentication to GAR

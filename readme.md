@@ -26,54 +26,16 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 ## Initial GCP Setup for Terraform
 
     # Set your GCP project details
-    GCP_PROJECT=<yourGcpProjectNameGoesHere>
-    GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
-    GCP_REGION=<yourGcpRegionGoesHere>
+    export GCP_PROJECT=<yourGcpProjectNameGoesHere>
+    export GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
+    export GCP_REGION=<yourGcpRegionGoesHere>
 
     # Initialize and authenticate gcloud CLI
     # (follow the prompt to authenticate in your browser)
     gcloud auth login $GCP_EMAIL
 
-    # Set gcloud to use your project and region
-    gcloud config set project $GCP_PROJECT
-    gcloud config set account $GCP_EMAIL
-
-    # Enable necessary GCP APIs
-    gcloud services enable --project $GCP_PROJECT \
-    cloudresourcemanager.googleapis.com \
-    servicenetworking.googleapis.com \
-    servicemanagement.googleapis.com \
-    iamcredentials.googleapis.com
-
-    gcloud config set compute/region $GCP_REGION
-    gcloud config set compute/zone ${GCP_REGION}-a
-
-    # check gcloud config
-    gcloud config list
-
-    # Create and set up Terraform service account
-    gcloud iam service-accounts create terraform \
-    --description="Used by Terraform" \
-    --display-name="Terraform"
-
-    # Verify service account was created
-    gcloud iam service-accounts list
-
-    # Grant the necessary roles to the service account
-    gcloud projects add-iam-policy-binding $GCP_PROJECT \
-    --member="serviceAccount:terraform@${GCP_PROJECT}.iam.gserviceaccount.com" \
-    --role="roles/container.admin" \
-    --role="roles/storage.admin" \
-    --role="roles/compute.admin" \
-    --role="roles/storage.legacyBucketWriter" \
-    --role="roles/owner"
-
-    # Describe service account
-    gcloud iam service-accounts describe terraform@${GCP_PROJECT}.iam.gserviceaccount.com
-
-    # Generate and download a service account key
-    gcloud iam service-accounts keys create gcp_sa_key.json \
-    --iam-account=terraform@${GCP_PROJECT}.iam.gserviceaccount.com
+    # Run script
+    bash setup.sh
 
 ## Using Terraform
 
@@ -103,25 +65,19 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
     kubectl cluster-info
     ```
-
-3. Create Google Artifact Registry (GAR) and configure external auth via Workload Identity Federation
-    ```
-    # create GAR
-    make deploy-auto-approve TF_TARGET=artifact_registry
-    ```
     
-4. Create secret in Google Secrets and allow GKE workload SA default/mypod to impersonate IAM SA and access the secret
+3. Create other infrastructure
     ```
-    # create secrets
-    make deploy-auto-approve TF_TARGET=secrets
+    # create secret in Google Secrets and allow GKE workload SA default/mypod to impersonate IAM SA and access the secret
+    # create Google Artifact Registry (GAR) and configure external auth via Workload Identity Federation
+    make deploy-auto-approve TF_TARGET=other_stuff
     ```
 
 #### Destroy terraform resources
 
-    # destroy terraform resources (GKE and GAR)
+    # destroy terraform resources
     make destroy-auto-approve TF_TARGET=gke_cluster
-    make destroy-auto-approve TF_TARGET=artifact_registry
-    make destroy-auto-approve TF_TARGET=secrets
+    make destroy-auto-approve TF_TARGET=other_stuff
 
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
@@ -129,8 +85,7 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     # clean tf related files (local state, lock, cache)
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
-    make clean TF_TARGET=artifact_registry
-    make clean TF_TARGET=secrets
+    make clean TF_TARGET=other_stuff
 
 #### Debug
 

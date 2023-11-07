@@ -26,7 +26,7 @@ resource "google_privateca_certificate_authority" "quicksampleapp" {
   pool                     = "my-pool"
   certificate_authority_id = "my-certificate-authority"
   location                 = var.gcp_region
-  deletion_protection      = "true"
+  deletion_protection      = "false"
   config {
     subject_config {
       subject {
@@ -63,7 +63,7 @@ resource "google_privateca_certificate_authority" "quicksampleapp" {
       }
     }
   }
-  lifetime = "86400s"
+  lifetime = "7776000s"
   key_spec {
     # algorithm = "RSA_PKCS1_4096_SHA256"
     algorithm = "EC_P384_SHA384"
