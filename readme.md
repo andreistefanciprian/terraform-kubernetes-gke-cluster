@@ -26,8 +26,6 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Initial GCP Setup for Terraform
 
-    # Use your existing Google Cloud Console account or create a [FREE TRIAL](https://console.cloud.google.com/) account with 300USD credit.
-
     # Set your GCP project env vars
     export GCP_PROJECT=<yourGcpProjectNameGoesHere>
     export GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
