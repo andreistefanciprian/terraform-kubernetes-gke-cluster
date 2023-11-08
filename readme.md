@@ -7,6 +7,7 @@ The primary components include:
 * Google Artifact Registry (GAR): 
     * A Docker and Helm chart registry that integrates with [Github Actions Pipeline](https://github.com/andreistefanciprian/go-demo-app) for a demo app.
     * Authentication to GAR from the Github Actions Runner is done via [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
+* [Certificate Authority Service](https://cloud.google.com/certificate-authority-service/docs) (used by cert-manager to manage certifictes)
 * Firewall Rules: Network rules that enable specific traffic patterns, including internet access from private nodes, Istio auto-injection, and SSH connectivity for debugging.
 * [GKE Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled and used by a Kubernetes [workload](https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/tree/main/examples) to impersonate an IAM Service Account and access secrets in Google Secrets Manager
 
@@ -25,7 +26,9 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Initial GCP Setup for Terraform
 
-    # Set your GCP project details
+    # Use your existing Google Cloud Console account or create a [FREE TRIAL](https://console.cloud.google.com/) account with 300USD credit.
+
+    # Set your GCP project env vars
     export GCP_PROJECT=<yourGcpProjectNameGoesHere>
     export GCP_EMAIL=<yourAccountNameGoesHere>@gmail.com
     export GCP_REGION=<yourGcpRegionGoesHere>
@@ -87,16 +90,14 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     make clean TF_TARGET=gke_cluster
     make clean TF_TARGET=other_stuff
 
-#### Debug
 
-    # ssh into gke nodes
-    gcloud compute instances list
-    gcloud compute ssh <instanceName> --zone ${GCP_REGION}-a --tunnel-through-iap
+## OPTIONAL: Build k8s ecosystem with fluxcd
 
-    # test internet connectivity from GKE node
-    gcloud compute routers create nat-router \
-        --network ${GCP_PROJECT}-vpc \
-        --region $GCP_REGION
+Installs:
+* cert-manager (automatically manage certificates lifecycle)
+* kube-prometheus-stack (monitoring)
+* secrets-store-csi-driver
+* istio service mesh
+* other apps
 
-    sudo nsenter --target `pgrep '^kube-dns$'` --net /bin/bash
-    curl -I example.com
+Follow steps [here](https://github.com/andreistefanciprian/flux-demo).
