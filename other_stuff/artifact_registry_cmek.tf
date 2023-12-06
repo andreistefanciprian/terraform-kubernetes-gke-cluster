@@ -38,9 +38,9 @@ resource "google_service_account" "ghr" {
 
 # Create CMEK keyring and crypto key
 resource "google_kms_key_ring" "test" {
-  name     = var.app_name
-  location = var.gcp_region
-  depends_on = [ google_project_service.cloudkms ]
+  name       = var.app_name
+  location   = var.gcp_region
+  depends_on = [google_project_service.cloudkms]
 }
 
 resource "google_kms_crypto_key" "test" {
@@ -96,6 +96,18 @@ resource "google_artifact_registry_repository" "cmek-helm-charts" {
   ]
 }
 
+#  Create dedicated Artifactory registry for k8s manifests (flux OCI Repos)
+resource "google_artifact_registry_repository" "manifests" {
+  location      = var.gcp_region
+  repository_id = "manifests"
+  description   = "OCI Repo Flux Registry for k8s manifests"
+  format        = "DOCKER"
+  kms_key_name  = google_kms_crypto_key.test.id
+  depends_on = [
+    google_kms_crypto_key_iam_member.crypto_key
+  ]
+}
+
 # Grant GHA SA permission to write to image registry
 resource "google_artifact_registry_repository_iam_member" "cmek_image_registry_writer" {
   project    = google_artifact_registry_repository.cmek-container-images.project
@@ -110,6 +122,15 @@ resource "google_artifact_registry_repository_iam_member" "cmek_helm_registry_wr
   project    = google_artifact_registry_repository.cmek-helm-charts.project
   location   = google_artifact_registry_repository.cmek-helm-charts.location
   repository = google_artifact_registry_repository.cmek-helm-charts.name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.ghr.email}"
+}
+
+# Grant GHA SA permission to write to manifests registry (flux OCI Repos)
+resource "google_artifact_registry_repository_iam_member" "manifests_registry_writer" {
+  project    = google_artifact_registry_repository.manifests.project
+  location   = google_artifact_registry_repository.manifests.location
+  repository = google_artifact_registry_repository.manifests.name
   role       = "roles/artifactregistry.writer"
   member     = "serviceAccount:${google_service_account.ghr.email}"
 }

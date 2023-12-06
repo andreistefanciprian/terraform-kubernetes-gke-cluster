@@ -50,3 +50,12 @@ resource "google_artifact_registry_repository_iam_member" "flux_chart_reader" {
   role       = "roles/artifactregistry.reader"
   member     = "serviceAccount:${google_service_account.flux.email}"
 }
+
+# Grant SA permission to consume from manifests registry (flux OCI Repos)
+resource "google_artifact_registry_repository_iam_member" "manifests_reader" {
+  project    = google_artifact_registry_repository.manifests.project
+  location   = google_artifact_registry_repository.manifests.location
+  repository = google_artifact_registry_repository.manifests.name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${google_service_account.flux.email}"
+}
