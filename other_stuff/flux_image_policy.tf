@@ -18,7 +18,9 @@ resource "google_service_account_iam_binding" "flux" {
   service_account_id = google_service_account.flux.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/gcr-credentials-sync]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/kustomize-controller]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/source-controller]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/image-reflector-controller]",
   ]
 }
 
