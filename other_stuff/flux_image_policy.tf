@@ -18,19 +18,21 @@ resource "google_service_account_iam_binding" "flux" {
   service_account_id = google_service_account.flux.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/gcr-credentials-sync]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/kustomize-controller]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/source-controller]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/image-reflector-controller]",
   ]
 }
 
-# Grant Google SA permission to generate short lived token for flux ImageRepository authentication to GAR
-resource "google_project_iam_binding" "flux" {
-  project = var.gcp_project
-  role    = "roles/iam.serviceAccountTokenCreator"
+# # Grant Google SA permission to generate short lived token for flux ImageRepository authentication to GAR
+# resource "google_project_iam_binding" "flux" {
+#   project = var.gcp_project
+#   role    = "roles/iam.serviceAccountTokenCreator"
 
-  members = [
-    "serviceAccount:${google_service_account.flux.email}",
-  ]
-}
+#   members = [
+#     "serviceAccount:${google_service_account.flux.email}",
+#   ]
+# }
 
 
 # Grant SA permission to consume from image registry
