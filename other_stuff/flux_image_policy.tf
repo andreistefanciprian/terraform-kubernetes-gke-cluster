@@ -24,17 +24,6 @@ resource "google_service_account_iam_binding" "flux" {
   ]
 }
 
-# # Grant Google SA permission to generate short lived token for flux ImageRepository authentication to GAR
-# resource "google_project_iam_binding" "flux" {
-#   project = var.gcp_project
-#   role    = "roles/iam.serviceAccountTokenCreator"
-
-#   members = [
-#     "serviceAccount:${google_service_account.flux.email}",
-#   ]
-# }
-
-
 # Grant SA permission to consume from image registry
 resource "google_artifact_registry_repository_iam_member" "flux_image_reader" {
   project    = google_artifact_registry_repository.cmek-container-images.project

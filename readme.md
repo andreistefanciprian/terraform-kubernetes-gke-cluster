@@ -77,9 +77,9 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 #### Destroy terraform resources
 
     # destroy terraform resources
-    make destroy-auto-approve TF_TARGET=gke_cluster
     make destroy-auto-approve TF_TARGET=other_stuff
-
+    make destroy-auto-approve TF_TARGET=gke_cluster
+    
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
 
