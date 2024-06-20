@@ -7,11 +7,13 @@
 resource "google_project_service" "container" {
   service                    = "container.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_project_service" "compute" {
   service                    = "compute.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_container_cluster" "primary" {
@@ -26,6 +28,8 @@ resource "google_container_cluster" "primary" {
   enable_shielded_nodes       = true         # https://cloud.google.com/kubernetes-engine/docs/how-to/shielded-gke-nodes
   enable_intranode_visibility = true         # https://cloud.google.com/kubernetes-engine/docs/how-to/intranode-visibility
   networking_mode             = "VPC_NATIVE" # Required for private service networking to services
+
+  deletion_protection = false
 
   private_cluster_config {
     enable_private_endpoint = false

@@ -1,6 +1,7 @@
 resource "google_project_service" "iam" {
   service                    = "iam.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_service_account" "cluster" {

@@ -2,32 +2,32 @@
 resource "google_project_service" "artifactregistry" {
   service                    = "artifactregistry.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_project_service" "cloudkms" {
   service                    = "cloudkms.googleapis.com"
   disable_dependent_services = true
-}
-
-resource "google_project_service" "container" {
-  service                    = "container.googleapis.com"
-  disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_project_service" "compute" {
   service                    = "compute.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 # do we need mesh? might be used by ASM
 resource "google_project_service" "mesh" {
   service                    = "mesh.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 resource "google_project_service" "sts" {
   service                    = "sts.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 # Create a dedicated Google Service Account which will push the Helm charts and Container Images to Artifact Registry

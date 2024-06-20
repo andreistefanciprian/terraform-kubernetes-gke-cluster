@@ -1,10 +1,11 @@
 # https://fluxcd.io/flux/guides/cron-job-image-auth/#gcp-container-registry
 # Used by go-demo-app flux ImageRepository
 
-# Enable IAM API
+# # Enable IAM API
 resource "google_project_service" "iam" {
   service                    = "iam.googleapis.com"
   disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 # Service account to generate short lived token for flux ImageRepository authentication to GAR
@@ -18,7 +19,8 @@ resource "google_service_account_iam_binding" "flux" {
   service_account_id = google_service_account.flux.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/gcr-credentials-sync]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/source-controller]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[flux-system/image-reflector-controller]",
   ]
 }
 
