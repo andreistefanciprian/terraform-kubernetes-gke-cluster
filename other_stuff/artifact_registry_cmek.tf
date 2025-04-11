@@ -74,9 +74,10 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 
 #  Create dedicated Artifactory registry for container images
 resource "google_artifact_registry_repository" "cmek-container-images" {
+  provider      = google-beta
   location      = var.gcp_region
   repository_id = "cmek-container-images"
-  description   = "CMEK Container Image Registry"
+  description   = "Repository for container images with CMEK encryption"
   format        = "DOCKER"
   kms_key_name  = google_kms_crypto_key.test.id
   depends_on = [
@@ -152,6 +153,7 @@ resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
     "attribute.aud"        = "assertion.aud",
     "attribute.repository" = "assertion.repository",
   }
+  attribute_condition = "assertion.repository == 'andreistefanciprian/go-demo-app'"
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
@@ -162,6 +164,13 @@ resource "google_service_account_iam_member" "gha_impersonator" {
   service_account_id = google_service_account.ghr.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/${var.app_name}"
+}
+
+# not sure I'm using this ????
+resource "google_service_account_iam_member" "gha_impersonator_slack_bot" {
+  service_account_id = google_service_account.ghr.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/demo_slack_bot"
 }
 
 # Outputs

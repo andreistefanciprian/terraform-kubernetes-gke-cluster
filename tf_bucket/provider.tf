@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.2.5"
+  required_version = ">= 1.6.2"
 }
 provider "google" {
   project = var.gcp_project
