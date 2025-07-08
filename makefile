@@ -1,12 +1,14 @@
 TF_TARGET=
 TF_PLAN_FILE=$(TF_TARGET)-tf.tfplan
-TF_EXEC=docker-compose run terraform
+TF_EXEC=docker compose run terraform
 TF_EXTRA_OPS=
 TFSTATE_BUCKET=terraform-state-demo-74341
 TFSTATE_DIR=tfstate/$(TF_TARGET)
 
-
 all: plan
+
+clean-orphan-containers:
+	@docker rm -f $$(docker ps -aq --filter "name=gcp_setup-terraform-run") 2>/dev/null || echo "No matching containers to remove."
 
 clean:
 	@rm -rf $(TF_TARGET)/.terraform
@@ -19,7 +21,7 @@ get:
 	$(TF_EXEC) -chdir=$(TF_TARGET) get
 	$(TF_EXEC) -chdir=$(TF_TARGET) fmt
 
-init: clean get
+init: clean get clean-orphan-containers
 	$(TF_EXEC) -chdir=$(TF_TARGET) init -backend-config 'bucket=$(TFSTATE_BUCKET)' -backend-config 'prefix=$(TFSTATE_DIR)' -input=false
 
 plan: init
