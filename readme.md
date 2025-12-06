@@ -40,11 +40,16 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Using Terraform
 
-This repository uses Terraform version 1.2.5:
+This repository uses Terraform version 1.14.1:
 
     make verify_version
 
-Update the .env file in your directory with your GCP project details and the location of your service account key. 
+    # clean tf related files (local state, lock, cache) from previus runs
+    make clean TF_TARGET=tf_bucket
+    make clean TF_TARGET=gke_cluster
+    make clean TF_TARGET=other_stuff
+
+Update the .env file in your directory with your GCP project name and region only. 
 
 #### Build GCP resources
 
@@ -54,7 +59,7 @@ Update the .env file in your directory with your GCP project details and the loc
     docker compose run terraform -chdir=tf_bucket init
     docker compose run terraform -chdir=tf_bucket apply -auto-approve
     ```
-Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the Makefile.
+Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the .env file.
 
 2.  Create GKE cluster
     ```
