@@ -14,7 +14,7 @@ iamcredentials.googleapis.com \
 compute.googleapis.com \
 cloudkms.googleapis.com \
 secretmanager.googleapis.com \
-container.googleapis.com 
+container.googleapis.com
 
 # Set gcloud to use your region and zone
 gcloud config set compute/region $GCP_REGION
