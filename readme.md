@@ -44,7 +44,7 @@ This repository uses Terraform version 1.14.1:
 
     make verify_version
 
-    # clean tf related files (local state, lock, cache) from previus runs
+    # clean tf related files (local state, lock, cache) from previous runs
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
     make clean TF_TARGET=other_stuff
