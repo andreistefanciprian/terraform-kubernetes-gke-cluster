@@ -1,8 +1,10 @@
+include .env
+export
+
 TF_TARGET=
 TF_PLAN_FILE=$(TF_TARGET)-tf.tfplan
 TF_EXEC=docker compose run terraform
 TF_EXTRA_OPS=
-TFSTATE_BUCKET=terraform-state-demo-74341
 TFSTATE_DIR=tfstate/$(TF_TARGET)
 
 all: plan
@@ -24,13 +26,16 @@ get:
 init: clean get clean-orphan-containers
 	$(TF_EXEC) -chdir=$(TF_TARGET) init -backend-config 'bucket=$(TFSTATE_BUCKET)' -backend-config 'prefix=$(TFSTATE_DIR)' -input=false
 
-plan: init
+init-upgrade: clean get clean-orphan-containers
+	$(TF_EXEC) -chdir=$(TF_TARGET) init -upgrade -backend-config 'bucket=$(TFSTATE_BUCKET)' -backend-config 'prefix=$(TFSTATE_DIR)' -input=false
+
+plan: init-upgrade
 	$(TF_EXEC) -chdir=$(TF_TARGET) plan -input=false -out=$(TF_PLAN_FILE)
 
 deploy: plan
 	$(TF_EXEC) apply $(TF_PLAN_FILE) && rm $(TF_PLAN_FILE)
 
-deploy-auto-approve: init
+deploy-auto-approve: init-upgrade
 	$(TF_EXEC) -chdir=$(TF_TARGET) apply -input=false -auto-approve
 
 destroy: init
