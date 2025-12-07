@@ -4,78 +4,36 @@ resource "google_project_service" "secretmanager" {
   disable_on_destroy = false
 }
 
-# Create secret
-resource "google_secret_manager_secret" "my-secret" {
-  provider = google-beta
-
-  secret_id = "my-secret"
-
-  replication {
-    auto {}
-  }
-
-  depends_on = [google_project_service.secretmanager]
-}
-
-# Add secret version
-resource "google_secret_manager_secret_version" "secret-version-basic" {
-  secret      = google_secret_manager_secret.my-secret.id
-  secret_data = "BLABLABLA"
-}
-
 # Create a dedicated Google Service Account (SA) which will read secrets from Secret Manager
 resource "google_service_account" "secrets_reader" {
   account_id   = "secrets-reader"
   display_name = "This SA will be impersonated by a k8s SA to mount secrets in K8s"
 }
 
-# Grant k8s SA permission to impersonate Google SA via workload identity
-resource "google_service_account_iam_member" "service-account-iam" {
-  service_account_id = google_service_account.secrets_reader.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[default/mypod]"
+# Create my-secret using module
+module "my_secret" {
+  source = "../modules/secret-with-workload-identity"
+
+  secret_id                    = "my-secret"
+  secret_data                  = "My_SECRET_PLACEHOLDER"
+  gcp_project                  = var.gcp_project
+  gcp_service_account_name     = google_service_account.secrets_reader.name
+  gcp_service_account_email    = google_service_account.secrets_reader.email
+  k8s_service_accounts         = ["default/mypod"]
+  secretmanager_api_dependency = google_project_service.secretmanager
 }
 
-# Grant Google SA permission to access secerets in Secret Manager
-resource "google_secret_manager_secret_iam_binding" "binding" {
-  project   = google_secret_manager_secret.my-secret.project
-  secret_id = google_secret_manager_secret.my-secret.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  members = [
-    "serviceAccount:${google_service_account.secrets_reader.email}",
-  ]
-}
+# Create slack-webhook secret using module
+module "slack_webhook" {
+  source = "../modules/secret-with-workload-identity"
 
-# Create slack-webhook secret
-resource "google_secret_manager_secret" "slack_webhook" {
-  provider  = google-beta
-  secret_id = "slack-webhook"
-  replication {
-    auto {}
-  }
-  depends_on = [google_project_service.secretmanager]
-}
-
-resource "google_secret_manager_secret_version" "slack_webhook_version" {
-  secret      = google_secret_manager_secret.slack_webhook.id
-  secret_data = "SLACK_WEBHOOK_PLACEHOLDER"
-}
-
-# Grant k8s SA monitoring/alertmanager permission to impersonate Google SA via workload identity
-resource "google_service_account_iam_member" "service-account-iam-alertmanager" {
-  service_account_id = google_service_account.secrets_reader.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[monitoring/alertmanager]"
-}
-
-# Grant Google SA permission to access slack-webhook secret
-resource "google_secret_manager_secret_iam_binding" "slack_webhook_binding" {
-  project   = google_secret_manager_secret.slack_webhook.project
-  secret_id = google_secret_manager_secret.slack_webhook.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  members = [
-    "serviceAccount:${google_service_account.secrets_reader.email}",
-  ]
+  secret_id                    = "slack-webhook"
+  secret_data                  = "SLACK_WEBHOOK_PLACEHOLDER"
+  gcp_project                  = var.gcp_project
+  gcp_service_account_name     = google_service_account.secrets_reader.name
+  gcp_service_account_email    = google_service_account.secrets_reader.email
+  k8s_service_accounts         = ["monitoring/alertmanager"]
+  secretmanager_api_dependency = google_project_service.secretmanager
 }
 
 
