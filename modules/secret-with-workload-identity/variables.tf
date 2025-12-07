@@ -7,7 +7,7 @@ variable "secret_data" {
   description = "The secret data/value"
   type        = string
   sensitive   = true
-  default= "SECRET_PLACEHOLDER"
+  default     = "SECRET_PLACEHOLDER"
 }
 
 variable "gcp_project" {
