@@ -37,15 +37,15 @@ resource "google_service_account" "ghr" {
 }
 
 # Create CMEK keyring and crypto key
-resource "google_kms_key_ring" "test" {
-  name       = var.app_name
+resource "google_kms_key_ring" "gha" {
+  name       = "gha"
   location   = var.gcp_region
   depends_on = [google_project_service.cloudkms]
 }
 
-resource "google_kms_crypto_key" "test" {
-  name            = var.app_name
-  key_ring        = google_kms_key_ring.test.id
+resource "google_kms_crypto_key" "gha" {
+  name            = "gha"
+  key_ring        = google_kms_key_ring.gha.id
   rotation_period = "100000s"
   purpose         = "ENCRYPT_DECRYPT"
   version_template {
@@ -64,7 +64,7 @@ resource "google_project_service_identity" "gar_sa" {
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = google_kms_crypto_key.test.id
+  crypto_key_id = google_kms_crypto_key.gha.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${google_project_service_identity.gar_sa.email}"
   depends_on = [
@@ -79,7 +79,7 @@ resource "google_artifact_registry_repository" "cmek-container-images" {
   repository_id = "cmek-container-images"
   description   = "Repository for container images with CMEK encryption"
   format        = "DOCKER"
-  kms_key_name  = google_kms_crypto_key.test.id
+  kms_key_name  = google_kms_crypto_key.gha.id
   depends_on = [
     google_kms_crypto_key_iam_member.crypto_key
   ]
@@ -91,7 +91,7 @@ resource "google_artifact_registry_repository" "cmek-helm-charts" {
   repository_id = "cmek-helm-charts"
   description   = "CMEK Helm Chart Registry"
   format        = "DOCKER"
-  kms_key_name  = google_kms_crypto_key.test.id
+  kms_key_name  = google_kms_crypto_key.gha.id
   depends_on = [
     google_kms_crypto_key_iam_member.crypto_key
   ]
@@ -103,7 +103,7 @@ resource "google_artifact_registry_repository" "manifests" {
   repository_id = "manifests"
   description   = "OCI Repo Flux Registry for k8s manifests"
   format        = "DOCKER"
-  kms_key_name  = google_kms_crypto_key.test.id
+  kms_key_name  = google_kms_crypto_key.gha.id
   depends_on = [
     google_kms_crypto_key_iam_member.crypto_key
   ]
@@ -138,22 +138,23 @@ resource "google_artifact_registry_repository_iam_member" "manifests_registry_wr
 
 # Workload Identity Federation configuration
 # Create a Workload Identity Pool
-resource "google_iam_workload_identity_pool" "go-demo-app" {
-  workload_identity_pool_id = var.app_name
+resource "google_iam_workload_identity_pool" "gha" {
+  workload_identity_pool_id = "githubactions-pool"
   description               = "Identity pool for Github Actions"
 }
 
 # Create a Workload Identity Provider with GitHub actions
 resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.go-demo-app.workload_identity_pool_id
-  workload_identity_pool_provider_id = var.app_name
+  workload_identity_pool_id          = google_iam_workload_identity_pool.gha.workload_identity_pool_id
+  workload_identity_pool_provider_id = "githubactions-pool"
   attribute_mapping = {
-    "google.subject"       = "assertion.sub",
-    "attribute.actor"      = "assertion.actor",
-    "attribute.aud"        = "assertion.aud",
-    "attribute.repository" = "assertion.repository",
+    "google.subject"             = "assertion.sub",
+    "attribute.actor"            = "assertion.actor",
+    "attribute.aud"              = "assertion.aud",
+    "attribute.repository"       = "assertion.repository",
+    "attribute.repository_owner" = "assertion.repository_owner",
   }
-  attribute_condition = "assertion.repository == 'andreistefanciprian/go-demo-app'"
+  attribute_condition = "assertion.repository_owner == 'andreistefanciprian'"
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
@@ -163,14 +164,14 @@ resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
 resource "google_service_account_iam_member" "gha_impersonator" {
   service_account_id = google_service_account.ghr.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/${var.app_name}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gha.name}/attribute.repository/andreistefanciprian/go-demo-app"
 }
 
 # not sure I'm using this ????
 resource "google_service_account_iam_member" "gha_impersonator_slack_bot" {
   service_account_id = google_service_account.ghr.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.go-demo-app.name}/attribute.repository/andreistefanciprian/demo_slack_bot"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gha.name}/attribute.repository/andreistefanciprian/demo_slack_bot"
 }
 
 # Outputs
@@ -181,7 +182,7 @@ output "google_iam_workload_identity_pool_provider_github_name" {
 
 output "google_iam_workload_identity_pool_name" {
   description = "Workload Identity Pool Name"
-  value       = google_iam_workload_identity_pool.go-demo-app.name
+  value       = google_iam_workload_identity_pool.gha.name
 }
 
 output "service_account_github_actions_email" {
