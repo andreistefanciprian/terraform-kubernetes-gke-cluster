@@ -30,12 +30,10 @@ resource "google_service_account" "secrets_reader" {
 }
 
 # Grant k8s SA permission to impersonate Google SA via workload identity
-resource "google_service_account_iam_binding" "service-account-iam" {
+resource "google_service_account_iam_member" "service-account-iam" {
   service_account_id = google_service_account.secrets_reader.name
   role               = "roles/iam.workloadIdentityUser"
-  members = [
-    "serviceAccount:${var.gcp_project}.svc.id.goog[default/mypod]",
-  ]
+  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[default/mypod]"
 }
 
 # Grant Google SA permission to access secerets in Secret Manager
@@ -47,6 +45,39 @@ resource "google_secret_manager_secret_iam_binding" "binding" {
     "serviceAccount:${google_service_account.secrets_reader.email}",
   ]
 }
+
+# Create slack-webhook secret
+resource "google_secret_manager_secret" "slack_webhook" {
+  provider  = google-beta
+  secret_id = "slack-webhook"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager]
+}
+
+resource "google_secret_manager_secret_version" "slack_webhook_version" {
+  secret      = google_secret_manager_secret.slack_webhook.id
+  secret_data = "SLACK_WEBHOOK_PLACEHOLDER"
+}
+
+# Grant k8s SA monitoring/alertmanager permission to impersonate Google SA via workload identity
+resource "google_service_account_iam_member" "service-account-iam-alertmanager" {
+  service_account_id = google_service_account.secrets_reader.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[monitoring/alertmanager]"
+}
+
+# Grant Google SA permission to access slack-webhook secret
+resource "google_secret_manager_secret_iam_binding" "slack_webhook_binding" {
+  project   = google_secret_manager_secret.slack_webhook.project
+  secret_id = google_secret_manager_secret.slack_webhook.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  members = [
+    "serviceAccount:${google_service_account.secrets_reader.email}",
+  ]
+}
+
 
 # Outputs
 output "service_account_workload_email" {

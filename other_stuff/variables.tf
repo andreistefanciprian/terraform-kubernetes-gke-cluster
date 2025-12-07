@@ -13,8 +13,3 @@ variable "github_repo_owner" {
   type    = string
   default = "andreistefanciprian"
 }
-
-variable "app_name" {
-  type    = string
-  default = "go-demo-app"
-}
