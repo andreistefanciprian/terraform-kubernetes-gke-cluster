@@ -13,3 +13,15 @@ variable "github_repo_owner" {
   type    = string
   default = "andreistefanciprian"
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Primary domain name for certificates"
+  default     = "netl1.com"
+}
+
+variable "domain_organization" {
+  type        = string
+  description = "Organization name for certificate authority"
+  default     = "netl1"
+}

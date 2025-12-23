@@ -20,21 +20,20 @@ resource "google_privateca_ca_pool" "default" {
   depends_on = [google_project_service.privateca]
 }
 
-resource "google_privateca_certificate_authority" "quicksampleapp" {
-  // This example assumes this pool already exists.
-  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
-  pool                     = "my-pool"
-  certificate_authority_id = "my-certificate-authority"
-  location                 = var.gcp_region
-  deletion_protection      = "false"
+resource "google_privateca_certificate_authority" "main" {
+  pool                                   = google_privateca_ca_pool.default.name
+  certificate_authority_id               = "${var.domain_organization}-certificate-authority"
+  location                               = var.gcp_region
+  deletion_protection                    = false
+  ignore_active_certificates_on_deletion = true
   config {
     subject_config {
       subject {
-        organization = "quicksampleapp"
+        organization = var.domain_organization
         common_name  = "my-ca"
       }
       subject_alt_name {
-        dns_names = ["quicksampleapp.com"]
+        dns_names = [var.domain_name]
       }
     }
     x509_config {
