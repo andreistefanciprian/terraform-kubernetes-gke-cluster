@@ -40,10 +40,10 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Configuration
 
-Copy `.env.example` to `.env` and update with your GCP project ID and region. The `TF_VAR_tfstate_bucket` value will be set after creating the Terraform state bucket.
+Copy `env.example` to `.env` and update with your GCP project ID and region. The `TF_VAR_tfstate_bucket` value will be set after creating the Terraform state bucket.
 
 ```bash
-cp .env.example .env
+cp env.example .env
 ```
 
 ## Using Terraform
