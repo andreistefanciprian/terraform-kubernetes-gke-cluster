@@ -40,7 +40,7 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
 
 ## Configuration
 
-Copy `.env.example` to `.env` and update with your GCP project ID and region. The `TFSTATE_BUCKET` value will be set after creating the Terraform state bucket.
+Copy `.env.example` to `.env` and update with your GCP project ID and region. The `TF_VAR_tfstate_bucket` value will be set after creating the Terraform state bucket.
 
 ```bash
 cp .env.example .env
@@ -54,7 +54,8 @@ This repository uses Terraform version 1.14.1:
 
     # clean tf related files (local state, lock, cache) from previous runs
     make clean TF_TARGET=tf_bucket
-    make clean TF_TARGET=gke_cluster
+    make clean TF_TARGET=networking
+    make clean TF_TARGET=gke
     make clean TF_TARGET=other_stuff
 
 #### Build GCP resources
@@ -65,20 +66,27 @@ This repository uses Terraform version 1.14.1:
     docker compose run terraform -chdir=tf_bucket init
     docker compose run terraform -chdir=tf_bucket apply -auto-approve
     ```
-Note: Once you have created your Terraform state bucket, update the bucket name variable (TFSTATE_BUCKET) in the .env file.
+Note: Once you have created your Terraform state bucket, update the bucket name variable (TF_VAR_tfstate_bucket) in the .env file.
 
-2.  Create GKE cluster
+2. Create networking infrastructure
+    ```
+    # create VPC, subnets, NAT gateway
+    make plan TF_TARGET=networking
+    make deploy-auto-approve TF_TARGET=networking
+    ```
+
+3. Create GKE cluster
     ```
     # create K8s cluster (GKE)
-    make plan TF_TARGET=gke_cluster
-    make deploy-auto-approve TF_TARGET=gke_cluster
+    make plan TF_TARGET=gke
+    make deploy-auto-approve TF_TARGET=gke
 
     # configure kubectl profile
     gcloud container clusters get-credentials ${GCP_PROJECT}-gke --region $GCP_REGION --project $GCP_PROJECT
     kubectl cluster-info
     ```
     
-3. Create other infrastructure
+4. Create other infrastructure
     ```
     # create secret in Google Secrets and allow GKE workload SA default/mypod to impersonate IAM SA and access the secret
     # create Google Artifact Registry (GAR) and configure external auth via Workload Identity Federation
@@ -89,14 +97,16 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
 
     # destroy terraform resources
     make destroy-auto-approve TF_TARGET=other_stuff
-    make destroy-auto-approve TF_TARGET=gke_cluster
+    make destroy-auto-approve TF_TARGET=gke
+    make destroy-auto-approve TF_TARGET=networking
     
     # destroy terraform state bucket
     docker-compose run terraform -chdir=tf_bucket destroy -auto-approve
 
     # clean tf related files (local state, lock, cache)
     make clean TF_TARGET=tf_bucket
-    make clean TF_TARGET=gke_cluster
+    make clean TF_TARGET=networking
+    make clean TF_TARGET=gke
     make clean TF_TARGET=other_stuff
 
 
