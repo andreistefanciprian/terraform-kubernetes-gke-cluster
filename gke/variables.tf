@@ -9,6 +9,11 @@ variable "gcp_project" {
   description = "GCP project name"
 }
 
+variable "tfstate_bucket" {
+  type        = string
+  description = "GCS bucket name for Terraform state"
+}
+
 variable "maintenance_window" {
   description = "Time window specified for daily maintenance operations to START in RFC3339 format"
   type        = string

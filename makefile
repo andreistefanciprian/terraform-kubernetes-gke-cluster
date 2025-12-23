@@ -6,6 +6,7 @@ TF_PLAN_FILE=$(TF_TARGET)-tf.tfplan
 TF_EXEC=docker compose run terraform
 TF_EXTRA_OPS=
 TFSTATE_DIR=tfstate/$(TF_TARGET)
+TFSTATE_BUCKET=$(TF_VAR_tfstate_bucket)
 
 all: plan
 

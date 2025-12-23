@@ -8,5 +8,6 @@
 */*.tfstate
 */*.tfplan
 .env
+!.env.example
 .*
 !/.gitignore

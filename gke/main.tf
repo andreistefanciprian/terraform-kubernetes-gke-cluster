@@ -1,9 +1,4 @@
 # GKE cluster
-# resource "google_service_account" "default" {
-#   account_id   = var.service_account_name_cluster
-#   display_name = var.service_account_name_cluster
-# }
-
 resource "google_project_service" "container" {
   service                    = "container.googleapis.com"
   disable_dependent_services = true
@@ -20,8 +15,8 @@ resource "google_container_cluster" "primary" {
   provider           = google-beta
   name               = "${var.gcp_project}-gke"
   location           = var.gcp_region
-  network            = google_compute_network.vpc.name
-  subnetwork         = google_compute_subnetwork.subnet.name
+  network            = data.terraform_remote_state.networking.outputs.vpc_name
+  subnetwork         = data.terraform_remote_state.networking.outputs.subnet_name
   logging_service    = "logging.googleapis.com/kubernetes"    # Lets use Stackdriver
   monitoring_service = "monitoring.googleapis.com/kubernetes" # Lets use Stackdriver
 
