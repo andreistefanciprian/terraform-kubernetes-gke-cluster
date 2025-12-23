@@ -38,6 +38,14 @@ Since Terraform runs inside a Docker container, you don't need to install it on 
     # Run script
     bash setup.sh
 
+## Configuration
+
+Copy `.env.example` to `.env` and update with your GCP project ID and region. The `TFSTATE_BUCKET` value will be set after creating the Terraform state bucket.
+
+```bash
+cp .env.example .env
+```
+
 ## Using Terraform
 
 This repository uses Terraform version 1.14.1:
@@ -48,8 +56,6 @@ This repository uses Terraform version 1.14.1:
     make clean TF_TARGET=tf_bucket
     make clean TF_TARGET=gke_cluster
     make clean TF_TARGET=other_stuff
-
-Update the .env file in your directory with your GCP project name and region only. 
 
 #### Build GCP resources
 
