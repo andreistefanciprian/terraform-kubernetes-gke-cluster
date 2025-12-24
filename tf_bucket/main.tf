@@ -1,5 +1,5 @@
 
-# generate unique number to be used for gcp resource unique names
+# Generate unique number to be used for gcp resource unique names
 resource "random_integer" "rand" {
   min = 10000
   max = 99999
