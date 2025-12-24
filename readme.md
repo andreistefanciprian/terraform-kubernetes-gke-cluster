@@ -1,6 +1,6 @@
 # Google Kubernetes Engine (GKE) Cluster with Terraform
 
-This repository contains Terraform code that automate the provisioning of a GKE cluster and associated resources on Google Cloud Platform (GCP).
+This repository contains Terraform code that automates the provisioning of a GKE cluster and associated resources in Google Cloud Platform (GCP).
 
 The primary components include:
 * Private GKE Cluster with Public Endpoint and Workload Identity enabled.
@@ -94,7 +94,7 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     ```
 
 #### Destroy terraform resources
-
+    ```
     # destroy terraform resources
     make destroy-auto-approve TF_TARGET=other_stuff
     make destroy-auto-approve TF_TARGET=gke
@@ -108,7 +108,7 @@ Note: Once you have created your Terraform state bucket, update the bucket name 
     make clean TF_TARGET=networking
     make clean TF_TARGET=gke
     make clean TF_TARGET=other_stuff
-
+    ```
 
 ## OPTIONAL: Build k8s ecosystem with fluxcd
 
