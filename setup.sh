@@ -24,9 +24,14 @@ gcloud config set compute/zone ${GCP_REGION}-a
 gcloud config list
 
 # Create and set up Terraform service account
-gcloud iam service-accounts create terraform \
---description="Used by Terraform" \
---display-name="Terraform"
+if ! gcloud iam service-accounts describe terraform@${GCP_PROJECT}.iam.gserviceaccount.com >/dev/null 2>&1; then
+  gcloud iam service-accounts create terraform \
+  --description="Used by Terraform" \
+  --display-name="Terraform"
+  echo "Terraform service account created."
+else
+  echo "Terraform service account already exists."
+fi
 
 # Verify service account was created
 gcloud iam service-accounts list
