@@ -62,9 +62,9 @@ resource "google_container_cluster" "primary" {
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
-  remove_default_node_pool = false
+  remove_default_node_pool = true
 
-  initial_node_count = var.gke_num_nodes
+  initial_node_count = 1
 
   addons_config {
     istio_config {
@@ -98,12 +98,28 @@ resource "google_container_cluster" "primary" {
     mesh_id = "proj-${data.google_project.project.number}"
   }
 
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+
+  depends_on = [google_service_account.cluster]
+}
+
+# Separately managed node pool
+resource "google_container_node_pool" "primary_nodes" {
+  name     = "${var.gcp_project}-node-pool"
+  location = var.gcp_region
+  cluster  = google_container_cluster.primary.name
+
+  node_count = var.gke_num_nodes
+
   node_config {
     machine_type = var.node_type
-    preemptible  = true # Don't want nodes failing during calls particularly
+    preemptible  = true
     disk_size_gb = var.node_disk_size
     disk_type    = var.node_disk_type
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+
     service_account = google_service_account.cluster.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
@@ -114,46 +130,5 @@ resource "google_container_cluster" "primary" {
     }
 
     tags = ["gke-node", "${var.gcp_project}-gke"]
-
   }
-
-  timeouts {
-    create = "30m"
-    update = "40m"
-  }
-
-  depends_on = [google_service_account.cluster]
 }
-
-# Separately Managed Node Pool
-# resource "google_container_node_pool" "primary_nodes" {
-#   name       = "${google_container_cluster.primary.name}-node-pool"
-#   location   = var.gcp_region
-#   cluster    = google_container_cluster.primary.name
-#   node_count = var.gke_num_nodes
-
-#   upgrade_settings {
-#     max_surge       = 3
-#     max_unavailable = 0
-#   }
-
-#   node_config {
-#     service_account = google_service_account.cluster.email
-#     oauth_scopes = [
-#       "https://www.googleapis.com/auth/logging.write",
-#       "https://www.googleapis.com/auth/monitoring",
-#       "https://www.googleapis.com/auth/cloud-platform",
-#     ]
-
-#     labels = {
-#       env = var.gcp_project
-#     }
-
-#     preemptible  = true
-#     machine_type = var.node_type
-#     tags         = ["gke-node", "${var.gcp_project}-gke"]
-#     metadata = {
-#       disable-legacy-endpoints = "true"
-#     }
-#   }
-# }
