@@ -1,12 +1,12 @@
 # VPC
 resource "google_compute_network" "vpc" {
-  name                    = "${var.gcp_project}-vpc"
+  name                    = "${var.project_name}-vpc"
   auto_create_subnetworks = "false"
 }
 
 # Subnet
 resource "google_compute_subnetwork" "subnet" {
-  name          = "${var.gcp_project}-subnet"
+  name          = "${var.project_name}-subnet"
   region        = var.gcp_region
   network       = google_compute_network.vpc.name
   ip_cidr_range = "10.10.0.0/24"
@@ -16,7 +16,7 @@ resource "google_compute_subnetwork" "subnet" {
 # Allow internet connectivity from inside the cluster so we can pull images from public registries
 # Not recommended in production clusters
 resource "google_compute_router" "router" {
-  name    = "nat-router"
+  name    = "${var.project_name}-nat-router"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.vpc.id
 
@@ -26,7 +26,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_router_nat" "nat" {
-  name                               = "my-router-nat"
+  name                               = "${var.project_name}-nat"
   router                             = google_compute_router.router.name
   region                             = google_compute_router.router.region
   nat_ip_allocate_option             = "AUTO_ONLY"
