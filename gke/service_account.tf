@@ -5,8 +5,8 @@ resource "google_project_service" "iam" {
 }
 
 resource "google_service_account" "cluster" {
-  account_id   = var.service_account_name_cluster
-  display_name = var.service_account_name_cluster
+  account_id   = "${var.project_name}-cluster"
+  display_name = "${var.project_name}-cluster"
   project      = var.gcp_project
   depends_on   = [google_project_service.iam]
 }

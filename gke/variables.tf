@@ -35,9 +35,10 @@ variable "node_disk_size" {
   default = 10
 }
 
-variable "service_account_name_cluster" {
-  type    = string
-  default = "demo-cluster"
+variable "project_name" {
+  type        = string
+  description = "Name prefix used across all resources for consistent naming"
+  default     = "home"
 }
 
 variable "gke_num_nodes" {
