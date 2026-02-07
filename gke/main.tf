@@ -13,7 +13,7 @@ resource "google_project_service" "compute" {
 
 resource "google_container_cluster" "primary" {
   provider           = google-beta
-  name               = "${var.gcp_project}-gke"
+  name               = var.project_name
   location           = var.gcp_region
   network            = data.terraform_remote_state.networking.outputs.vpc_name
   subnetwork         = data.terraform_remote_state.networking.outputs.subnet_name
@@ -94,7 +94,7 @@ resource "google_container_cluster" "primary" {
   }
 
   resource_labels = {
-    env     = var.gcp_project
+    env     = var.project_name
     mesh_id = "proj-${data.google_project.project.number}"
   }
 
@@ -108,7 +108,7 @@ resource "google_container_cluster" "primary" {
 
 # Separately managed node pool
 resource "google_container_node_pool" "primary_nodes" {
-  name     = "${var.gcp_project}-node-pool"
+  name     = var.project_name
   location = var.gcp_region
   cluster  = google_container_cluster.primary.name
 
@@ -126,9 +126,9 @@ resource "google_container_node_pool" "primary_nodes" {
     ]
 
     labels = {
-      env = var.gcp_project
+      env = var.project_name
     }
 
-    tags = ["gke-node", "${var.gcp_project}-gke"]
+    tags = ["gke-node", var.project_name]
   }
 }

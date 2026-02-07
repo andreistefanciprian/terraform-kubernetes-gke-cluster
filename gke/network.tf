@@ -2,7 +2,7 @@
 # Allow ssh into GKE nodes for debug purposes
 # not recommended in production clusters
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh"
+  name    = "${var.project_name}-allow-ssh"
   network = data.terraform_remote_state.networking.outputs.vpc_name
 
   allow {
@@ -17,7 +17,7 @@ resource "google_compute_firewall" "allow_ssh" {
 # Allow istio pilot to inject sidecars
 # needed by the Pilot discovery validation webhook
 resource "google_compute_firewall" "allow_istio_auto_inject" {
-  name    = "allow-istio-auto-inject"
+  name    = "${var.project_name}-allow-istio-auto-inject"
   network = data.terraform_remote_state.networking.outputs.vpc_name
 
   allow {
