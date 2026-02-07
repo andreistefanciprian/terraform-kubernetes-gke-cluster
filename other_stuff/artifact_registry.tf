@@ -41,6 +41,12 @@ resource "google_kms_key_ring" "gha" {
   name       = "gha"
   location   = var.gcp_region
   depends_on = [google_project_service.cloudkms]
+
+  lifecycle {
+    # KMS KeyRings cannot be deleted in GCP, only scheduled for deletion after 24h
+    # To avoid errors on destroy, we'll ignore this resource
+    prevent_destroy = false
+  }
 }
 
 resource "google_kms_crypto_key" "gha" {
@@ -141,10 +147,16 @@ resource "google_artifact_registry_repository_iam_member" "manifests_registry_wr
 resource "google_iam_workload_identity_pool" "gha" {
   workload_identity_pool_id = "githubactions-pool"
   description               = "Identity pool for Github Actions"
+
+  lifecycle {
+    # Workload Identity Pools are soft-deleted and kept for 30 days
+    # Set a unique name or use replace_triggered_by if recreating frequently
+    ignore_changes = []
+  }
 }
 
 # Create a Workload Identity Provider with GitHub actions
-resource "google_iam_workload_identity_pool_provider" "go-demo-app" {
+resource "google_iam_workload_identity_pool_provider" "default" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.gha.workload_identity_pool_id
   workload_identity_pool_provider_id = "githubactions-pool"
   attribute_mapping = {
@@ -177,7 +189,7 @@ resource "google_service_account_iam_member" "gha_impersonator_slack_bot" {
 # Outputs
 output "google_iam_workload_identity_pool_provider_github_name" {
   description = "Workload Identity Pool Provider ID"
-  value       = google_iam_workload_identity_pool_provider.go-demo-app.name
+  value       = google_iam_workload_identity_pool_provider.default.name
 }
 
 output "google_iam_workload_identity_pool_name" {

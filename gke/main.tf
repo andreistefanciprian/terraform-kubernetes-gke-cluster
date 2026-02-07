@@ -121,6 +121,8 @@ resource "google_container_cluster" "primary" {
     create = "30m"
     update = "40m"
   }
+
+  depends_on = [google_service_account.cluster]
 }
 
 # Separately Managed Node Pool
